@@ -264,16 +264,22 @@
         </div>
     </div>
 
-    <div id="contato" class="page-section hidden animate__animated animate__fadeIn">
-        <h1 style="text-align: center; margin-bottom: 40px;">CONTATO</h1>
-        <div style="max-width: 600px; margin: 0 auto; background: var(--glass-bg); padding: 40px; border-radius: 20px; border: 1px solid var(--glass-border);">
-            <form onsubmit="event.preventDefault(); alert('Sinal enviado!');">
-                <input type="text" placeholder="Nome" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; color: #fff; margin-bottom: 20px; border-radius: 8px;">
-                <textarea placeholder="Mensagem" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; color: #fff; margin-bottom: 20px; border-radius: 8px; height: 120px;"></textarea>
-                <button class="btn-whatsapp" style="width: 100%;">Enviar</button>
-            </form>
-        </div>
+   <div id="contato" class="page-section hidden animate__animated animate__fadeIn">
+    <h1 style="text-align: center; margin-bottom: 40px;">CONTATO</h1>
+    <div style="max-width: 600px; margin: 0 auto; background: var(--glass-bg); padding: 40px; border-radius: 20px; border: 1px solid var(--glass-border);">
+        
+        <form onsubmit="enviarWhatsApp(event)">
+            <input type="text" id="contato-nome" placeholder="Seu Nome" required 
+                style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; color: #fff; margin-bottom: 20px; border-radius: 8px;">
+            
+            <textarea id="contato-mensagem" placeholder="Como podemos ajudar?" required 
+                style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; color: #fff; margin-bottom: 20px; border-radius: 8px; height: 120px;"></textarea>
+            
+            <button type="submit" class="btn-whatsapp" style="width: 100%;">ENVIAR PARA WHATSAPP</button>
+        </form>
+
     </div>
+</div>
 </main>
 
 <footer>
@@ -380,6 +386,23 @@
 
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
+function enviarWhatsApp(event) {
+    event.preventDefault(); // Evita que a página recarregue
+
+    // Captura os valores dos campos
+    const nome = document.querySelector('#contato-nome').value;
+    const mensagem = document.querySelector('#contato-mensagem').value;
+    const telefoneDono = "5535999531207"; // Número da Minas Net
+
+    // Monta o texto (o \n serve para pular linha)
+    const textoMensagem = `*Novo Contato via Site* 🚀\n\n*Nome:* ${nome}\n*Mensagem:* ${mensagem}`;
+    
+    // Codifica para formato de URL
+    const linkZap = `https://wa.me/${telefoneDono}?text=${encodeURIComponent(textoMensagem)}`;
+
+    // Abre em uma nova aba
+    window.open(linkZap, '_blank');
+}
 </script>
 </body>
 </html>
