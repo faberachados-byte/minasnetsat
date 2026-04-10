@@ -1813,28 +1813,38 @@
       // --- FUNÇÕES GLOBAIS (FORA DO DOMCONTENTLOADED) ---
 
       function initSwiper() {
-        if (
-          typeof Swiper === "undefined" ||
-          !document.querySelector(".mySwiper")
-        )
-          return;
-        if (swiperInstance) swiperInstance.destroy(true, true);
+    if (typeof Swiper === "undefined" || !document.querySelector(".mySwiper")) return;
+    
+    if (swiperInstance) swiperInstance.destroy(true, true);
 
-        swiperInstance = new Swiper(".mySwiper", {
-          slidesPerView: 1.2,
-          breakpoints: {
+    swiperInstance = new Swiper(".mySwiper", {
+        slidesPerView: 1.2,
+        breakpoints: {
             640: { slidesPerView: 2.2 },
             1024: { slidesPerView: 3.5 },
-          },
-          spaceBetween: 20,
-          loop: true,
-          speed: 4000,
-          freeMode: { enabled: true, momentum: false },
-          autoplay: { delay: 0, disableOnInteraction: false },
-          disableOnInteraction: false, // <-- ISSO GARANTE QUE NÃO PARE AO TOCAR
-          pauseOnMouseEnter: false,    // Garante que não pare se o mouse passar por cima
-        });
-      }
+        },
+        spaceBetween: 20,
+        loop: true,
+        speed: 4000,
+        // O freeMode as vezes conflita com o autoplay contínuo, vamos ajustar:
+        freeMode: false, 
+        allowTouchMove: true,
+        autoplay: {
+            delay: 0,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: false,
+        },
+        // EVENTOS PARA FORÇAR O RETORNO
+        on: {
+            touchEnd: function() {
+                this.autoplay.run(); // Força o play quando solta o dedo
+            },
+            transitionEnd: function() {
+                this.autoplay.run(); // Força o play ao acabar qualquer animação
+            }
+        }
+    });
+}
 
       function toggleMenu() {
         const mobileNav = document.getElementById("mobileNav");
