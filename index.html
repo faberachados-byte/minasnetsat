@@ -1831,6 +1831,8 @@
           speed: 4000,
           freeMode: { enabled: true, momentum: false },
           autoplay: { delay: 0, disableOnInteraction: false },
+          disableOnInteraction: false, // <-- ISSO GARANTE QUE NÃO PARE AO TOCAR
+          pauseOnMouseEnter: false,    // Garante que não pare se o mouse passar por cima
         });
       }
 
