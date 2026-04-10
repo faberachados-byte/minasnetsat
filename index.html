@@ -49,12 +49,11 @@
       width: 100% !important;
     }
     /* Trava total: Root e Body */
-    html.menu-open,
-    body.menu-open {
+      html.menu-open, body.menu-open {
       overflow: hidden !important;
       height: 100vh !important;
-      position: fixed !important;
-      width: 100% !important;
+      position: fixed; /* Isso trava o safari de rolar o fundo */
+      width: 100%;
     }
 
    .hamburger {
@@ -448,85 +447,98 @@
 
   <script>
     let swiperInstance;
-    function initSwiper() {
-      if (swiperInstance) swiperInstance.destroy(true, true);
-      swiperInstance = new Swiper(".mySwiper", {
-        slidesPerView: "auto", spaceBetween: 20, loop: true, speed: 8000,
-        autoplay: { delay: 0, disableOnInteraction: false },
-        observer: true, observeParents: true
-      });
+
+  function initSwiper() {
+    if (swiperInstance) swiperInstance.destroy(true, true);
+    swiperInstance = new Swiper(".mySwiper", {
+      slidesPerView: "auto",
+      spaceBetween: 20,
+      loop: true,
+      speed: 8000,
+      autoplay: { delay: 0, disableOnInteraction: false },
+      observer: true,
+      observeParents: true
+    });
+  }
+
+  // Função para travar o scroll (Solução definitiva para mobile/iOS)
+  function preventScroll(e) {
+    e.preventDefault();
+  }
+
+  function toggleMenu() {
+    const mobileNav = document.getElementById('mobileNav');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const body = document.body;
+    const html = document.documentElement;
+
+    const isOpen = mobileNav.classList.toggle('active');
+    hamburgerBtn.classList.toggle('active');
+
+    if (isOpen) {
+      body.classList.add('menu-open');
+      html.classList.add('menu-open');
+      // Adiciona ouvinte para impedir o scroll via touch
+      window.addEventListener('touchmove', preventScroll, { passive: false });
+    } else {
+      body.classList.remove('menu-open');
+      html.classList.remove('menu-open');
+      // Remove o impedimento de scroll
+      window.removeEventListener('touchmove', preventScroll);
+    }
+  }
+
+  function showPage(pageId) {
+    // 1. Esconde as seções
+    document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+    
+    // 2. Mostra a página correta
+    const target = document.getElementById(pageId);
+    if (target) {
+      target.classList.remove('hidden');
+      if (pageId === 'home') {
+        setTimeout(() => { 
+          AOS.refresh(); 
+          initSwiper(); 
+        }, 50);
+      }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      AOS.init({ duration: 1000, once: true });
-      initSwiper();
+    // 3. Reseta o Menu e o Scroll (Garante que tudo volte ao normal)
+    const mobileNav = document.getElementById('mobileNav');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    
+    mobileNav.classList.remove('active');
+    hamburgerBtn.classList.remove('active');
+    document.body.classList.remove('menu-open');
+    document.documentElement.classList.remove('menu-open');
+    window.removeEventListener('touchmove', preventScroll);
+
+    // 4. Marca o link ativo no menu desktop
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('onclick')?.includes(`'${pageId}'`)) {
+        link.classList.add('active');
+      }
     });
 
-    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-    function showPage(pageId) {
-      document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
-      const target = document.getElementById(pageId);
-      if(target) {
-        target.classList.remove('hidden');
-        if(pageId === 'home') {
-          setTimeout(() => { AOS.refresh(); initSwiper(); }, 50);
-        }
-      }
-      document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if(link.getAttribute('onclick')?.includes(`'${pageId}'`)) link.classList.add('active');
-      });
-      window.scrollTo({top: 0, behavior: 'smooth'});
-    }
+  // Inicialização
+  document.addEventListener('DOMContentLoaded', () => {
+    AOS.init({ duration: 1000, once: true });
+    initSwiper();
+  });
 
-    function toggleMenu() {
-      const mobileNav = document.getElementById('mobileNav');
-      const hamburgerBtn = document.getElementById('hamburgerBtn');
-      const body = document.body;
-
-      // Inverte as classes
-      const isOpen = mobileNav.classList.toggle('active');
-      hamburgerBtn.classList.toggle('active');
-
-      if (isOpen) {
-        // Salva a posição atual do scroll para não "pular" pro topo
-        const scrollY = window.scrollY;
-        body.style.top = `-${scrollY}px`;
-        body.classList.add('menu-open');
-      } else {
-        // Recupera a posição do scroll ao fechar
-        const scrollY = body.style.top;
-        body.classList.remove('menu-open');
-        body.style.top = '';
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
-      }
-    }
-
-    // Garante que o scroll volte ao trocar de página (showPage)
-    function showPage(pageId) {
-      document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
-      const target = document.getElementById(pageId);
-      
-      if(target) {
-        target.classList.remove('hidden');
-        if(pageId === 'home') {
-          setTimeout(() => { AOS.refresh(); initSwiper(); }, 50);
-        }
-      }
-
-      // SEMPRE destrava o corpo ao mudar de tela
-      document.body.classList.remove('menu-open');
-      document.body.style.top = '';
-      document.body.style.overflow = 'auto';
-
-      document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if(link.getAttribute('onclick')?.includes(`'${pageId}'`)) link.classList.add('active');
-      });
-      
-      window.scrollTo({top: 0, behavior: 'smooth'});
-    }
+  // Função do Formulário
+  function enviarWhatsApp(event) {
+    event.preventDefault();
+    const nome = document.getElementById('contato-nome').value;
+    const msg = document.getElementById('contato-mensagem').value;
+    const texto = `Olá, meu nome é ${nome}. ${msg}`;
+    window.open(`https://wa.me/5535999531207?text=${encodeURIComponent(texto)}`, '_blank');
+  }
   </script>
 </body>
 </html>
