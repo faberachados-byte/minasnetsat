@@ -42,6 +42,12 @@
       width: 100%;
        position: relative; /* Mantém tudo no eixo */
       }  
+
+    html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
      /* Trava absoluta para o corpo do site */
     body.menu-open {
       height: 100vh !important;
@@ -200,27 +206,32 @@
       transform: translateY(-9px) rotate(-45deg);
     }
 
-    .mobile-nav {
+  .mobile-nav {
   position: fixed;
   top: 0;
-  right: 0; /* Fica no lugar certo */
+  right: 0;
   width: 100%;
   height: 100vh;
   background: #05060a;
   z-index: 10000;
-  display: none; /* ELE NÃO EXISTE NO CARREGAMENTO */
+  
+  /* MUDANÇA AQUI: Em vez de display:none, use estes 3 */
+  visibility: hidden; 
+  opacity: 0;
+  pointer-events: none; 
+  
+  display: flex; /* Ele SEMPRE é flex, o que muda é a visibilidade */
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 30px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-    /* Quando estiver ativo, ele aparece suavemente */
 .mobile-nav.active {
-  display: flex; /* PASSA A EXISTIR */
+  visibility: visible;
   opacity: 1;
+  pointer-events: auto; /* Volta a aceitar cliques */
 }
     .mobile-nav a { font-family: 'Orbitron'; font-size: 1.8rem; color: #fff; text-decoration: none; cursor: pointer; }
 
@@ -471,24 +482,14 @@
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const body = document.body;
 
-  // Verifica se está abrindo ou fechando
-  const isOpening = !mobileNav.classList.contains('active');
-
-  if (isOpening) {
-    mobileNav.style.display = 'flex'; // Primeiro faz existir
-    setTimeout(() => {
-      mobileNav.classList.add('active');
-      body.classList.add('menu-open');
-    }, 10); // Delay mínimo para a transição de opacidade funcionar
-  } else {
-    mobileNav.classList.remove('active');
-    body.classList.remove('menu-open');
-    setTimeout(() => {
-      mobileNav.style.display = 'none'; // Depois que a animação acaba, some de vez
-    }, 300);
-  }
-  
+  const isOpen = mobileNav.classList.toggle('active');
   hamburgerBtn.classList.toggle('active');
+
+  if (isOpen) {
+    body.classList.add('menu-open');
+  } else {
+    body.classList.remove('menu-open');
+  }
 }
 
   function showPage(pageId) {
