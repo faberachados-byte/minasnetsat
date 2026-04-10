@@ -1819,28 +1819,47 @@
 
     swiperInstance = new Swiper(".mySwiper", {
         slidesPerView: 1.2,
-        breakpoints: {
-            640: { slidesPerView: 2.2 },
-            1024: { slidesPerView: 3.5 },
-        },
         spaceBetween: 20,
         loop: true,
+        // Garante que o Swiper crie slides extras para não haver "buracos" no loop infinito
+        loopedSlides: 5, 
+        loopAdditionalSlides: 3,
+        
         speed: 4000,
-        // O freeMode as vezes conflita com o autoplay contínuo, vamos ajustar:
-        freeMode: false, 
         allowTouchMove: true,
+        freeMode: false,
+
         autoplay: {
             delay: 0,
             disableOnInteraction: false,
             pauseOnMouseEnter: false,
+            // Impede que o autoplay pare quando o slide chega no último (essencial para loop)
+            stopOnLastSlide: false,
         },
-        // EVENTOS PARA FORÇAR O RETORNO
+
+        // Ajusta a transição para ser constante (sem aceleração/frenagem)
+        wrapperClass: 'swiper-wrapper',
+        cssMode: false,
+        
+        breakpoints: {
+            640: { slidesPerView: 2.2 },
+            1024: { slidesPerView: 3.5 },
+        },
+
         on: {
-            touchEnd: function() {
-                this.autoplay.run(); // Força o play quando solta o dedo
+            // Força o reinício se algo tentar travar o autoplay
+            init: function() {
+                this.autoplay.run();
             },
-            transitionEnd: function() {
-                this.autoplay.run(); // Força o play ao acabar qualquer animação
+            touchEnd: function() {
+                // Pequeno delay para garantir que o movimento do dedo acabou antes de retomar a esteira
+                setTimeout(() => {
+                    this.autoplay.run();
+                }, 100);
+            },
+            // Se o navegador entrar em suspensão e voltar, o Swiper acorda
+            visibilityChange: function() {
+                this.autoplay.run();
             }
         }
     });
