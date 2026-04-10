@@ -763,11 +763,26 @@ function showPage(pageId) {
     const texto = `Olá, meu nome é ${nome}. ${msg}`;
     window.open(`https://wa.me/5535999531207?text=${encodeURIComponent(texto)}`, '_blank');
   }
-  // Script simples para formatar CPF enquanto digita
-document.getElementById('cpfcnpj').addEventListener('input', function (e) {
-    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})/);
-    e.target.value = !x[2] ? x[1] : x[1] + '.' + x[2] + (x[3] ? '.' + x[3] : '') + (x[4] ? '-' + x[4] : '');
+ document.getElementById('cpfcnpj').addEventListener('input', function (e) {
+    let v = e.target.value.replace(/\D/g, ""); // Remove tudo o que não é dígito
+
+    if (v.length <= 11) {
+        // Máscara de CPF: 000.000.000-00
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    } else {
+        // Máscara de CNPJ: 00.000.000/0000-00
+        v = v.length > 14 ? v.substring(0, 14) : v; // Limita a 14 caracteres
+        v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+        v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+        v = v.replace(/(\d{4})(\d)/, "$1-$2");
+    }
+
+    e.target.value = v;
 });
+
   </script>
 </body>
 </html>
