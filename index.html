@@ -41,6 +41,13 @@
       overflow-x: hidden;
       width: 100%;
     }
+     /* Trava absoluta para o corpo do site */
+    body.menu-open {
+      height: 100vh !important;
+      overflow: hidden !important;
+      position: fixed !important; /* Essencial para iOS */
+      width: 100% !important;
+    }
 
     h1, h2, h3, h4 {
       font-family: 'Orbitron', sans-serif;
@@ -191,13 +198,7 @@
     }
     .mobile-nav a { font-family: 'Orbitron'; font-size: 1.8rem; color: #fff; text-decoration: none; cursor: pointer; }
 
-    /* Classe auxiliar para travar o scroll */
-    body.menu-open {
-      overflow: hidden !important;
-      height: 100vh;
-      width: 100vw;
-      position: fixed; /* Força o bloqueio no iOS */
-    }
+   
 
     .page-section { min-height: 100vh; padding-top: 120px; padding-bottom: 60px; position: relative; }
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -452,27 +453,52 @@
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
-    function enviarWhatsApp(event) {
-      event.preventDefault();
-      const nome = document.querySelector('#contato-nome').value;
-      const mensagem = document.querySelector('#contato-mensagem').value;
-      const texto = `*Novo Contato via Site*\n*Nome:* ${nome}\n*Mensagem:* ${mensagem}`;
-      window.open(`https://wa.me/5535999531207?text=${encodeURIComponent(texto)}`, '_blank');
-    }
     function toggleMenu() {
       const mobileNav = document.getElementById('mobileNav');
       const hamburgerBtn = document.getElementById('hamburgerBtn');
       const body = document.body;
 
-      mobileNav.classList.toggle('active');
+      // Inverte as classes
+      const isOpen = mobileNav.classList.toggle('active');
       hamburgerBtn.classList.toggle('active');
 
-      // Aplica a classe que trava o scroll
-      if (mobileNav.classList.contains('active')) {
+      if (isOpen) {
+        // Salva a posição atual do scroll para não "pular" pro topo
+        const scrollY = window.scrollY;
+        body.style.top = `-${scrollY}px`;
         body.classList.add('menu-open');
       } else {
+        // Recupera a posição do scroll ao fechar
+        const scrollY = body.style.top;
         body.classList.remove('menu-open');
+        body.style.top = '';
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
       }
+    }
+
+    // Garante que o scroll volte ao trocar de página (showPage)
+    function showPage(pageId) {
+      document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+      const target = document.getElementById(pageId);
+      
+      if(target) {
+        target.classList.remove('hidden');
+        if(pageId === 'home') {
+          setTimeout(() => { AOS.refresh(); initSwiper(); }, 50);
+        }
+      }
+
+      // SEMPRE destrava o corpo ao mudar de tela
+      document.body.classList.remove('menu-open');
+      document.body.style.top = '';
+      document.body.style.overflow = 'auto';
+
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if(link.getAttribute('onclick')?.includes(`'${pageId}'`)) link.classList.add('active');
+      });
+      
+      window.scrollTo({top: 0, behavior: 'smooth'});
     }
   </script>
 </body>
