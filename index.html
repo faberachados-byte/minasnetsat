@@ -354,6 +354,22 @@
     color: #fff;
     background: rgba(255,255,255,0.05);
 }
+/* Efeito de Profundidade nas Seções Alternadas (Igual ao Footer) */
+@media (min-width: 901px) {
+  /* Aplicamos nas IDs específicas para garantir o efeito Zebra */
+  #cobertura, #contato {
+    background: rgba(0, 0, 0, 0.3); /* Escurece o fundo levemente */
+    box-shadow: inset 0 20px 50px rgba(0, 0, 0, 0.9), 
+                inset 0 -20px 50px rgba(0, 0, 0, 0.9);
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .page-section {
+    padding-top: 140px;
+    padding-bottom: 100px;
+  }
+}
     .page-section { min-height: 100vh; padding-top: 120px; padding-bottom: 60px; position: relative; }
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
     .hidden { display: none !important; }
